@@ -2,53 +2,60 @@ package jm.task.core.jdbc.util;
 
 import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
-import sun.awt.image.PixelConverter;
+import org.hibernate.cfg.Configuration;
 
-import java.lang.module.Configuration;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import static sun.awt.image.PixelConverter.UshortGray.instance;
-
 public class Util {
-    private static String url = "jdbc:mysql://localhost:3306/MySql?useSSL=false&serverTimezone=UTC";
-    private static String user = "root";
-    private static String password = "root";
+    // реализуйте настройку соединения с БД
+    private static final String Driver = "com.mysql.cj.jdbc.Driver";
+    private static final String hostName = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false";
+    private static final String userName = "root";
+    private static final String password = "root";
+    public static Connection connection;
+    private static Util instance;
+    private static SessionFactory sessionFactory;
 
-    public static SessionFactory getSessionFactory() {
-        SessionFactory sessionFactory;
+
+    public static Session getSessionFactory() {
         if (sessionFactory == null) {
-            Properties properties = new Properties() {{
-                setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-                String hostName;
-                hostName = null;
-                setProperty("hibernate.connection.url", hostName);
-                String userName = null;
-                setProperty("hibernate.connection.username", userName);
-                setProperty("hibernate.connection.password", password);
-                String Driver = null;
-                setProperty("hibernate.connection.driver_class", Driver);
-                setProperty("show_sql", "true");
-                setProperty("hibernate.hbm2ddl.auto", "create-drop");
-                setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal.ThreadLocalSessionContext");
-            }};
-
-            Connection connection = null;
-            {
             try {
-                connection = DriverManager.getConnection(url, user, password);
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
+                Configuration configuration = new Configuration();
+
+                Properties settings = new Properties();
+                settings.put(Environment.DRIVER, DRIVER);
+                settings.put(Environment.URL, URL);
+                settings.put(Environment.USER, NAME);
+                settings.put(Environment.PASS, PASS);
+                settings.put(Environment.DIALECT, DIALECT);
+                settings.put(Environment.SHOW_SQL, "true");
+                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+                configuration.setProperties(settings);
+                configuration.addAnnotatedClass(User.class);
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                        .applySettings(configuration.getProperties()).build();
+                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return (SessionFactory) connection;
+        return sessionFactory.getCurrentSession();
     }
 
-    public static Util getInstance() {
-        if (null == instance) instance = new PixelConverter();
-        return (SessionFactory) instance;
+
+
+
+
+    public static Connection getConnect(){
+        try {
+            return DriverManager.getConnection(URL,
+                    NAME,
+                    PASS);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
