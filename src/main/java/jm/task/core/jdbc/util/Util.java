@@ -1,22 +1,28 @@
 package jm.task.core.jdbc.util;
+import java.util.Properties;
 
-import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
+import org.hibernate.service.ServiceRegistry;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.Session;
+
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class Util {
     // реализуйте настройку соединения с БД
-    private static final String Driver = "com.mysql.cj.jdbc.Driver";
-    private static final String hostName = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false";
-    private static final String userName = "root";
-    private static final String password = "root";
-    public static Connection connection;
-    private static Util instance;
+    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String URL = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false";
+    private static final String NAME = "root";
+    private static final String PASS = "root";
+    private static final String DIALECT = "org.hibernate.dialect.MySQL5Dialect";
+
+
     private static SessionFactory sessionFactory;
 
 
