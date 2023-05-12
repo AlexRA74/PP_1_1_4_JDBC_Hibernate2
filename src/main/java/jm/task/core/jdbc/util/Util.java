@@ -20,12 +20,7 @@ import java.sql.SQLException;
 
 public class Util {
     // реализуйте настройку соединения с БД
-    @Id
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
-
-    public Date createdDate;
 
 
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
