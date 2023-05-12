@@ -1,4 +1,5 @@
 package jm.task.core.jdbc.util;
+import java.util.Date;
 import java.util.Properties;
 
 import org.hibernate.SessionFactory;
@@ -10,12 +11,23 @@ import jm.task.core.jdbc.model.User;
 import org.hibernate.Session;
 
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Util {
     // реализуйте настройку соединения с БД
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Integer id;
+
+    public Date createdDate;
+
+
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false";
     private static final String NAME = "root";
@@ -32,6 +44,7 @@ public class Util {
                 Configuration configuration = new Configuration();
 
                 Properties settings = new Properties();
+
                 settings.put(Environment.DRIVER, DRIVER);
                 settings.put(Environment.URL, URL);
                 settings.put(Environment.USER, NAME);
@@ -44,6 +57,7 @@ public class Util {
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
