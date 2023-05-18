@@ -1,76 +1,60 @@
 package jm.task.core.jdbc.util;
-import java.util.Date;
-import java.util.Properties;
 
+import com.fasterxml.classmate.AnnotationConfiguration;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.AnnotationException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-import jm.task.core.jdbc.model.User;
-import org.hibernate.Session;
 
+import java.sql.*;
+import java.util.Properties;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Util {
-    // реализуйте настройку соединения с БД
-
-
-
-    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false";
-    private static final String NAME = "root";
-    private static final String PASS = "root";
-    private static final String DIALECT = "org.hibernate.dialect.MySQL5Dialect";
-
-
+    public static final String Driver = "com.mysql.cj.jdbc.Driver";
+    private static final String url = "jdbc:mysql://localhost:3306/MySql?useSSL=false&serverTimezone=UTC";
+    private static final String user = "root";
+    private static final String password = "root";
     private static SessionFactory sessionFactory;
+    public static Connection getConnection() {
+        Connection connection = null;
+        try {
+            Class.forName(Driver);
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return connection;
+    }
 
 
-    public static Session getSessionFactory() {
+    public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration();
-
-                Properties settings = new Properties();
-
-                settings.put(Environment.DRIVER, DRIVER);
-                settings.put(Environment.URL, URL);
-                settings.put(Environment.USER, NAME);
-                settings.put(Environment.PASS, PASS);
-                settings.put(Environment.DIALECT, DIALECT);
-                settings.put(Environment.SHOW_SQL, "true");
-                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                configuration.setProperties(settings);
+                Properties properties = new Properties();
+                properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+//                properties.put("hibernate.connection.url", hostName);
+                properties.put("hibernate.connection.username", user);
+                properties.put("hibernate.connection.password", password);
+                properties.put("hibernate.connection.driver_class", Driver);
+                properties.put("show_sql", "true");
+                properties.put("hibernate.hbm2ddl.auto", "create-drop");
+                properties.put("hibernate.current_session_context_class", "org.hibernate.context.internal.ThreadLocalSessionContext");
+                configuration.setProperties(properties);
                 configuration.addAnnotatedClass(User.class);
+
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-
             } catch (Exception e) {
-                e.printStackTrace();
+                    e.printStackTrace();
+                }
             }
-        }
-        return sessionFactory.getCurrentSession();
-    }
-
-
-
-
-
-    public static Connection getConnect(){
-        try {
-            return DriverManager.getConnection(URL,
-                    NAME,
-                    PASS);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return sessionFactory;
         }
     }
-}
