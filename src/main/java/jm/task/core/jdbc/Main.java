@@ -1,11 +1,13 @@
 package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.dao.UserDao;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
 
 public class    Main {
     public static void main(String[] args)  {
         // реализуйте алгоритм здесь
-        UserDao userDao = (UserDao) new UserDaoJDBCImpl();
+        UserService userDao = new UserServiceImpl();
 
         userDao.createUsersTable();
 

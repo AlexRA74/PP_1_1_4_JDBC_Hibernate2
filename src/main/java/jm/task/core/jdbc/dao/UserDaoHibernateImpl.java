@@ -3,84 +3,122 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
+
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 import java.util.List;
 
 
 public class UserDaoHibernateImpl implements UserDao {
+    private static final
+    String CREATE_USERS_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  users ( id BIGINT not NULL AUTO_INCREMENT, name VARCHAR(255), lastName VARCHAR(255), age TINYINT, PRIMARY KEY ( id ))";
+    Transaction transaction = null;
     public UserDaoHibernateImpl() {
     }
 
     @Override
     public void createUsersTable() {
-        Session session = Util.getSessionFactory();
-        try {
+//        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
             session.beginTransaction();
-            session.createSQLQuery(
-                    "CREATE TABLE IF NOT EXISTS users(" +
-                            "id BIGINT PRIMARY KEY AUTO_INCREMENT, " +
-                            "name VARCHAR(64), " +
-                            "last_name VARCHAR(64), " +
-                            "PRIMARY KEY (id)" +
-                            "age INT null," + ")").addEntity(User.class).executeUpdate();
+            session.createSQLQuery("CREATE TABLE IF NOT EXISTS User" +
+                    " (id BIGINT not null AUTO_INCREMENT,name VARCHAR(45)," +
+                    "lastName VARCHAR(45)," +
+                    " age INT, " +
+                    "PRIMARY KEY(id))").executeUpdate();
             session.getTransaction().commit();
-
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            System.out.println("Такая таблица уже существует");
+//        } catch (Exception e) {
+//            if (transaction != null) {
+//                try {
+//                    transaction.rollback();
+//                } catch (SystemException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+            }
         }
 
-    }
 
     @Override
     public void dropUsersTable() {
-        Session session =  Util.getSessionFactory();
-        try {
+//        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
             session.beginTransaction();
-            session.createSQLQuery("DROP TABLE user").addEntity(User.class).executeUpdate();
+            session.createSQLQuery("DROP TABLE IF EXISTS User").executeUpdate();
             session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            System.out.println("Такой таблицы не существует");
+//        } catch (Exception e) {
+//            if (transaction != null) {
+//                try {
+//                    transaction.rollback();
+//                } catch (SystemException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+            }
         }
-
-
-    }
 
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session =  Util.getSessionFactory();
-        User user = new User(name, lastName, age);
-        session.beginTransaction();
-        session.save(user);
-        session.getTransaction().commit();
-    }
+//        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            User user =new User(name,lastName,age);
+            session.save(user);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            System.out.println("Ошибка сохранения");
+
+
+            }
+        }
 
 
     @Override
     public void removeUserById(long id) {
-        Session session =  Util.getSessionFactory();
-        session.beginTransaction();
-        session.delete(session.get(User.class, id));
-        session.getTransaction().commit();
+//        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            User user = session.get(User.class, id);
+            session.delete(user);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                try {
+                    transaction.rollback();
+                } catch (SystemException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session =  Util.getSessionFactory();
-        session.beginTransaction();
-        List<User> list = session.createQuery("from User").getResultList();
-        session.getTransaction().commit();
-        return list;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            List<User> emps = session.createQuery("from User")
+                    .getResultList();
+            session.getTransaction().commit();
+            return emps;
+        } catch (Exception e) {
+            if (transaction != null) {
+                try {
+                    transaction.rollback();
+                } catch (SystemException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session =  Util.getSessionFactory();
+
+        Session session = Util.getSessionFactory().openSession();
         session.beginTransaction();
         session.createQuery("delete User").executeUpdate();
         session.getTransaction().commit();
 
+            }
+        }
 
-    }
-}
