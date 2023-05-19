@@ -18,7 +18,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-//        Transaction transaction = null;
+
         try (Session session = Util.getSessionFactory().openSession()) {
             session.beginTransaction();
             session.createSQLQuery("CREATE TABLE IF NOT EXISTS User" +
@@ -27,13 +27,7 @@ public class UserDaoHibernateImpl implements UserDao {
                     " age INT, " +
                     "PRIMARY KEY(id))").executeUpdate();
             session.getTransaction().commit();
-//        } catch (Exception e) {
-//            if (transaction != null) {
-//                try {
-//                    transaction.rollback();
-//                } catch (SystemException ex) {
-//                    throw new RuntimeException(ex);
-//                }
+
             }
         }
 
