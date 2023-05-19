@@ -28,6 +28,7 @@ public class Util {
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
+
             Configuration configuration = new Configuration();
             configuration.setProperty(Environment.DRIVER,DRIVER);
             configuration.setProperty(Environment.URL, URL);
